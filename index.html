@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberKiosk AI - Cyber Safety Assistant for Everyone</title>
+  <meta name="description" content="Simple Malayalam & English cyber safety kiosk assistant helping senior citizens and rural communities detect scams and stay safe online.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation & Accessibility Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-logo" data-i18n="appTitle">CyberKiosk AI</div>
+        <span class="brand-tag" data-i18n="sdgBadge">SDG 17: Digital Safety</span>
+      </div>
+
+      <div class="nav-controls">
+        <!-- Accessibility Font Size Scaler -->
+        <div class="accessibility-ctrl" title="Adjust text size for easier reading">
+          <span class="font-ctrl-label" data-i18n="fontScaleLabel">Text Size:</span>
+          <button id="btnFontDecrease" class="btn-icon" aria-label="Decrease text size">A-</button>
+          <button id="btnFontReset" class="btn-icon" aria-label="Reset text size">A</button>
+          <button id="btnFontIncrease" class="btn-icon" aria-label="Increase text size">A+</button>
+        </div>
+
+        <!-- Read Aloud Text-To-Speech Button -->
+        <button id="speakPageBtn" class="btn btn-audio" onclick="toggleVoiceGuide()" aria-label="Listen to page content out loud">
+          <span class="icon" aria-hidden="true">🔊</span>
+          <span data-i18n="readAloud">Listen</span>
+        </button>
+
+        <!-- Language Switcher Button -->
+        <button id="langToggleBtn" class="btn btn-lang" aria-label="Switch Language Malayalam or English">
+          <span class="icon" aria-hidden="true">🌐</span>
+          <span id="langBtnText">മലയാളം</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main class="main-content">
+
+    <!-- Hero Section -->
+    <section class="hero-card">
+      <h1 class="hero-title" id="heroTitleText" data-i18n="heroTitle">
+        Protecting You & Your Family from Online Fraud
+      </h1>
+      <p class="hero-desc" id="heroDescText" data-i18n="heroDesc">
+        CyberKiosk AI helps senior citizens and rural families easily detect scams, verify suspicious messages, and take immediate action in Malayalam and English.
+      </p>
+      <div class="hero-buttons">
+        <a href="#scamCategories" class="btn btn-primary">
+          <span>🔍</span>
+          <span data-i18n="heroActionScams">Explore Scam Guides</span>
+        </a>
+        <a href="#messageChecker" class="btn btn-secondary">
+          <span>🛡️</span>
+          <span data-i18n="heroActionChecker">Interactive Scam Detector</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Scam Categories Section -->
+    <section id="scamCategories" class="section-block">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>🚨</span>
+          <span data-i18n="categoriesTitle">Common Scam Categories</span>
+        </h2>
+        <p class="section-sub" data-i18n="categoriesSub">
+          Click any scam below to learn how it works, or click 'Test & Detect' to launch its interactive detector.
+        </p>
+      </div>
+
+      <!-- Scam Cards Container (Populated dynamically by app.js) -->
+      <div id="scamGridContainer" class="scam-grid"></div>
+    </section>
+
+    <!-- Interactive Scam Detection Center (All 6 Categories) -->
+    <section id="messageChecker" class="section-block">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>🔎</span>
+          <span data-i18n="detectorSectionTitle">Interactive Scam Detection Center</span>
+        </h2>
+        <p class="section-sub" data-i18n="detectorSectionSub">
+          Select any of the 6 scam categories below to test messages, URLs, QR codes, profiles, and phone calls with live validation.
+        </p>
+      </div>
+
+      <!-- Category Navigation Tabs -->
+      <div class="detector-tabs" role="tablist" aria-label="Scam Detector Categories">
+        <button id="tabBtnUpi" class="detector-tab active" role="tab" aria-selected="true" aria-controls="panelUpi" onclick="switchDetectorTab('upi')">
+          <span>💳</span> <span data-i18n="tabUpi">1. UPI & QR Code</span>
+        </button>
+        <button id="tabBtnWhatsapp" class="detector-tab" role="tab" aria-selected="false" aria-controls="panelWhatsapp" onclick="switchDetectorTab('whatsapp')">
+          <span>💬</span> <span data-i18n="tabWhatsapp">2. WhatsApp Emergency</span>
+        </button>
+        <button id="tabBtnFakelink" class="detector-tab" role="tab" aria-selected="false" aria-controls="panelFakelink" onclick="switchDetectorTab('fakelink')">
+          <span>🔗</span> <span data-i18n="tabFakelink">3. Fake Link & APK</span>
+        </button>
+        <button id="tabBtnBank" class="detector-tab" role="tab" aria-selected="false" aria-controls="panelBank" onclick="switchDetectorTab('bank')">
+          <span>🏦</span> <span data-i18n="tabBank">4. Bank & KYC Block</span>
+        </button>
+        <button id="tabBtnFakeaccount" class="detector-tab" role="tab" aria-selected="false" aria-controls="panelFakeaccount" onclick="switchDetectorTab('fakeaccount')">
+          <span>👤</span> <span data-i18n="tabFakeaccount">5. Fake Profile</span>
+        </button>
+        <button id="tabBtnFakecall" class="detector-tab" role="tab" aria-selected="false" aria-controls="panelFakecall" onclick="switchDetectorTab('fakecall')">
+          <span>📞</span> <span data-i18n="tabFakecall">6. Digital Arrest</span>
+        </button>
+      </div>
+
+      <!-- Main Detection Card Wrapper -->
+      <div class="checker-card">
+
+        <!-- ========================================== -->
+        <!-- TAB PANEL 1: UPI & QR CODE SCAM DETECTOR   -->
+        <!-- ========================================== -->
+        <div id="panelUpi" class="detector-panel active" role="tabpanel" aria-labelledby="tabBtnUpi">
+          <div class="panel-header">
+            <h3 class="panel-title">💳 <span data-i18n="upiTitle">UPI & QR Code Scam Detector</span></h3>
+            <p class="panel-desc" data-i18n="upiSub">Upload a payment QR code image or enter a UPI string to verify if it is an authorization trap or collect request.</p>
+          </div>
+
+          <!-- Prominent UPI PIN Warning Alert -->
+          <div class="safety-banner banner-warning">
+            <span class="banner-icon">⚠️</span>
+            <div data-i18n="upiPinSafetyAlert">
+              CRITICAL SAFETY RULE: You NEVER need to enter your UPI PIN to receive money! Entering your PIN will ALWAYS deduct money from your account.
+            </div>
+          </div>
+
+          <!-- Drag and Drop QR Upload Zone -->
+          <div class="upload-zone" id="qrDropZone">
+            <input type="file" id="qrFileInput" accept="image/png,image/jpeg,image/jpg" class="file-input-hidden" aria-label="Upload QR Code File">
+            <div class="upload-zone-content">
+              <span class="upload-icon">📷</span>
+              <p class="upload-title" data-i18n="dragDropQr">Drag & drop QR code image here or click to browse</p>
+              <p class="upload-hint">Supports PNG, JPG, JPEG (Max 5MB)</p>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('qrFileInput').click()">
+                📁 <span data-i18n="uploadQrBtn">Upload QR Code (PNG, JPG, JPEG)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- QR Image Preview Container -->
+          <div id="qrPreviewContainer" class="preview-container hidden">
+            <img id="qrPreviewImg" class="preview-img" alt="QR Code Preview">
+            <div class="preview-info">
+              <span id="qrFileName" class="preview-filename"></span>
+              <span id="qrStatusBadge" class="status-chip">Decoding...</span>
+              <button type="button" class="btn-remove" onclick="removeQrImage()">✕ <span data-i18n="removeFile">Remove Image</span></button>
+            </div>
+          </div>
+
+          <!-- Manual / Decoded UPI URI String Input -->
+          <div class="form-group" style="margin-top: 1.2rem;">
+            <label for="upiInput" class="form-label">
+              <span data-i18n="manualUpiLabel">Or Enter / Paste UPI Payment String or URL:</span>
+            </label>
+            <textarea 
+              id="upiInput" 
+              class="checker-textarea" 
+              style="min-height: 80px;"
+              placeholder="e.g., upi://pay?pa=scammer@okaxis&pn=PrizeWinner&am=25000&tn=Cashback%20Reward"
+              aria-label="UPI Payment String Input"
+            ></textarea>
+          </div>
+
+          <!-- Claimed Intent Radio -->
+          <div class="form-group">
+            <label class="form-label" data-i18n="upiIntentLabel">What were you told?</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="upiIntent" value="receive" checked>
+                <span data-i18n="upiIntentReceive">I was told: 'Receive Money / Claim Cashback / Get Refund'</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="upiIntent" value="pay">
+                <span data-i18n="upiIntentPay">I intend to send money to a merchant or shop</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Samples for UPI -->
+          <div class="sample-pills-label" data-i18n="trySampleTitle">Try Sample Scenarios:</div>
+          <div class="sample-pills">
+            <button type="button" class="pill-btn" onclick="loadUpiSample(1)">⚠️ <span data-i18n="upiSample1">Fake QR: Collect Request Disguised as 'Receive'</span></button>
+            <button type="button" class="pill-btn" onclick="loadUpiSample(2)">⚠️ <span data-i18n="upiSample2">Cashback Reward Trap QR</span></button>
+            <button type="button" class="pill-btn" onclick="loadUpiSample(3)">✅ <span data-i18n="upiSample3">Legitimate Merchant Store QR</span></button>
+          </div>
+
+          <!-- Actions -->
+          <div class="checker-actions">
+            <button type="button" id="btnAnalyzeUpi" class="btn btn-primary" onclick="analyzeUpiDetector()">
+              <span>🛡️</span>
+              <span data-i18n="analyzeQrBtn">Analyze QR Code</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="clearUpiDetector()">
+              <span>🗑️</span>
+              <span data-i18n="clearQrBtn">Clear QR</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB PANEL 2: WHATSAPP EMERGENCY SCAM DETECTOR  -->
+        <!-- ============================================== -->
+        <div id="panelWhatsapp" class="detector-panel" role="tabpanel" aria-labelledby="tabBtnWhatsapp">
+          <div class="panel-header">
+            <h3 class="panel-title">💬 <span data-i18n="waTitle">WhatsApp Emergency Scam Detector</span></h3>
+            <p class="panel-desc" data-i18n="waSub">Paste suspicious WhatsApp messages or upload chat screenshots to detect impersonation, urgent medical appeals, or money requests.</p>
+          </div>
+
+          <!-- Emergency Verification Notice -->
+          <div class="safety-banner banner-info">
+            <span class="banner-icon">💡</span>
+            <div data-i18n="waVerifyNotice">
+              CRITICAL: Always verify emergencies by calling the person on their KNOWN, ORIGINAL phone number before transferring money.
+            </div>
+          </div>
+
+          <!-- Message Text Box -->
+          <div class="form-group">
+            <label for="waMessageInput" class="form-label sr-only">WhatsApp Message Text</label>
+            <textarea 
+              id="waMessageInput" 
+              class="checker-textarea" 
+              placeholder="Paste WhatsApp message here... (e.g., 'Hi Mum, I lost my phone, this is my temporary number. I had an accident and need ₹20,000 urgently for hospital bills. Don't tell dad yet.')"
+              aria-label="WhatsApp Message Text Input"
+            ></textarea>
+          </div>
+
+          <!-- Screenshot OCR Upload Zone -->
+          <div class="upload-zone" id="waDropZone">
+            <input type="file" id="waFileInput" accept="image/png,image/jpeg,image/jpg" class="file-input-hidden" aria-label="Upload WhatsApp Screenshot">
+            <div class="upload-zone-content">
+              <span class="upload-icon">📱</span>
+              <p class="upload-title" data-i18n="uploadWaScreenshot">Optional: Upload WhatsApp Chat Screenshot (PNG, JPG)</p>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('waFileInput').click()">
+                📁 <span>Browse Screenshot</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Screenshot Preview & OCR Trigger -->
+          <div id="waPreviewContainer" class="preview-container hidden">
+            <img id="waPreviewImg" class="preview-img" alt="WhatsApp Screenshot Preview">
+            <div class="preview-info">
+              <span id="waFileName" class="preview-filename"></span>
+              <button type="button" id="btnWaOcr" class="btn btn-secondary btn-sm" onclick="extractWaOcr()">
+                🔤 <span data-i18n="extractOcrBtn">Extract Text from Screenshot (OCR)</span>
+              </button>
+              <button type="button" class="btn-remove" onclick="removeWaImage()">✕ <span data-i18n="removeFile">Remove Image</span></button>
+            </div>
+          </div>
+          <div id="waOcrStatus" class="ocr-status-message hidden"></div>
+
+          <!-- Samples -->
+          <div class="sample-pills-label" data-i18n="trySampleTitle">Try Sample Scenarios:</div>
+          <div class="sample-pills">
+            <button type="button" class="pill-btn" onclick="loadWaSample(1)">⚠️ <span data-i18n="waSample1">Hospital / Accident Emergency</span></button>
+            <button type="button" class="pill-btn" onclick="loadWaSample(2)">⚠️ <span data-i18n="waSample2">Lost Phone & Urgent College Fees</span></button>
+            <button type="button" class="pill-btn" onclick="loadWaSample(3)">✅ <span data-i18n="waSample3">Normal Family Message</span></button>
+          </div>
+
+          <!-- Actions -->
+          <div class="checker-actions">
+            <button type="button" id="btnAnalyzeWa" class="btn btn-primary" onclick="analyzeWaDetector()">
+              <span>🛡️</span>
+              <span data-i18n="analyzeWaBtn">Analyze Message</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="clearWaDetector()">
+              <span>🗑️</span>
+              <span data-i18n="clearWaBtn">Clear Text</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB PANEL 3: FAKE LINK & APK SCAM DETECTOR     -->
+        <!-- ============================================== -->
+        <div id="panelFakelink" class="detector-panel" role="tabpanel" aria-labelledby="tabBtnFakelink">
+          <div class="panel-header">
+            <h3 class="panel-title">🔗 <span data-i18n="linkTitle">Fake Link & APK Scam Detector</span></h3>
+            <p class="panel-desc" data-i18n="linkSub">Analyze website URLs, suspicious domains, misleading subdomains, and APK download links without visiting them.</p>
+          </div>
+
+          <!-- Safe Browsing Notice -->
+          <div class="safety-banner banner-safe">
+            <span class="banner-icon">🛡️</span>
+            <div data-i18n="linkSafetyWarning">
+              Safe Browsing: CyberKiosk AI performs local heuristic analysis and never opens or downloads untrusted files.
+            </div>
+          </div>
+
+          <!-- URL Input -->
+          <div class="form-group">
+            <label for="linkInput" class="form-label sr-only">Website Link or URL</label>
+            <input 
+              type="text" 
+              id="linkInput" 
+              class="form-input" 
+              placeholder="Enter website link (e.g., http://sbi-kyc-update.xyz/app.apk or bit.ly/free-recharge-reward)"
+              aria-label="Website Link Input"
+            >
+          </div>
+
+          <!-- Samples -->
+          <div class="sample-pills-label" data-i18n="trySampleTitle">Try Sample Scenarios:</div>
+          <div class="sample-pills">
+            <button type="button" class="pill-btn" onclick="loadLinkSample(1)">⚠️ <span data-i18n="linkSample1">Fake Bank KYC APK Download</span></button>
+            <button type="button" class="pill-btn" onclick="loadLinkSample(2)">⚠️ <span data-i18n="linkSample2">Free Recharge Shortener Link</span></button>
+            <button type="button" class="pill-btn" onclick="loadLinkSample(3)">✅ <span data-i18n="linkSample3">Official CyberCrime Portal</span></button>
+          </div>
+
+          <!-- Actions -->
+          <div class="checker-actions">
+            <button type="button" id="btnAnalyzeLink" class="btn btn-primary" onclick="analyzeLinkDetector()">
+              <span>🛡️</span>
+              <span data-i18n="analyzeLinkBtn">Analyze Link</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="clearLinkDetector()">
+              <span>🗑️</span>
+              <span data-i18n="clearLinkBtn">Clear Link</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB PANEL 4: BANK & KYC BLOCK SCAM DETECTOR    -->
+        <!-- ============================================== -->
+        <div id="panelBank" class="detector-panel" role="tabpanel" aria-labelledby="tabBtnBank">
+          <div class="panel-header">
+            <h3 class="panel-title">🏦 <span data-i18n="bankTitle">Bank & KYC Block Scam Detector</span></h3>
+            <p class="panel-desc" data-i18n="bankSub">Paste bank SMS alerts, emails, or caller statements threatening account freezes or KYC expiry.</p>
+          </div>
+
+          <!-- Privacy Reminder -->
+          <div class="safety-banner banner-safe">
+            <span class="banner-icon">🔒</span>
+            <div data-i18n="bankPrivacyReminder">
+              Privacy Protection: CyberKiosk AI will NEVER ask for your bank account number, card CVV, ATM PIN, OTP, or passwords.
+            </div>
+          </div>
+
+          <!-- Bank Dropdown -->
+          <div class="form-group">
+            <label for="bankSelect" class="form-label" data-i18n="bankSelectLabel">Select Bank (Optional):</label>
+            <select id="bankSelect" class="form-select" aria-label="Select Bank">
+              <option value="" data-i18n="bankSelectPlaceholder">-- Select Bank (Optional) --</option>
+              <option value="State Bank of India (SBI)">State Bank of India (SBI)</option>
+              <option value="HDFC Bank">HDFC Bank</option>
+              <option value="ICICI Bank">ICICI Bank</option>
+              <option value="Axis Bank">Axis Bank</option>
+              <option value="Punjab National Bank (PNB)">Punjab National Bank (PNB)</option>
+              <option value="Canara Bank">Canara Bank</option>
+              <option value="Kerala Gramin Bank">Kerala Gramin Bank</option>
+              <option value="Federal Bank">Federal Bank</option>
+              <option value="Bank of Baroda">Bank of Baroda</option>
+              <option value="Other Bank">Other Bank / Post Office</option>
+            </select>
+          </div>
+
+          <!-- Bank Message Textarea -->
+          <div class="form-group">
+            <label for="bankInput" class="form-label sr-only">Bank Message Text</label>
+            <textarea 
+              id="bankInput" 
+              class="checker-textarea" 
+              placeholder="Paste bank message here... (e.g., 'Dear customer, your SBI account is blocked due to pending KYC. Update immediately at http://bit.ly/sbi-kyc or call 9876543210')"
+              aria-label="Bank Message Text Input"
+            ></textarea>
+          </div>
+
+          <!-- Optional Screenshot Upload for Bank SMS -->
+          <div class="upload-zone" id="bankDropZone">
+            <input type="file" id="bankFileInput" accept="image/png,image/jpeg,image/jpg" class="file-input-hidden" aria-label="Upload Bank SMS Screenshot">
+            <div class="upload-zone-content">
+              <span class="upload-icon">🏦</span>
+              <p class="upload-title" data-i18n="uploadBankScreenshot">Optional: Upload SMS / Bank Notice Screenshot</p>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('bankFileInput').click()">
+                📁 <span>Browse Screenshot</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bank Screenshot Preview & OCR -->
+          <div id="bankPreviewContainer" class="preview-container hidden">
+            <img id="bankPreviewImg" class="preview-img" alt="Bank Notice Preview">
+            <div class="preview-info">
+              <span id="bankFileName" class="preview-filename"></span>
+              <button type="button" id="btnBankOcr" class="btn btn-secondary btn-sm" onclick="extractBankOcr()">
+                🔤 <span data-i18n="extractOcrBtn">Extract Text from Screenshot (OCR)</span>
+              </button>
+              <button type="button" class="btn-remove" onclick="removeBankImage()">✕ <span data-i18n="removeFile">Remove Image</span></button>
+            </div>
+          </div>
+          <div id="bankOcrStatus" class="ocr-status-message hidden"></div>
+
+          <!-- Samples -->
+          <div class="sample-pills-label" data-i18n="trySampleTitle">Try Sample Scenarios:</div>
+          <div class="sample-pills">
+            <button type="button" class="pill-btn" onclick="loadBankSample(1)">⚠️ <span data-i18n="bankSample1">SBI Account KYC Expiry Block</span></button>
+            <button type="button" class="pill-btn" onclick="loadBankSample(2)">⚠️ <span data-i18n="bankSample2">ATM Card Block & Callback Threat</span></button>
+            <button type="button" class="pill-btn" onclick="loadBankSample(3)">✅ <span data-i18n="bankSample3">Legitimate Bank Balance SMS</span></button>
+          </div>
+
+          <!-- Actions -->
+          <div class="checker-actions">
+            <button type="button" id="btnAnalyzeBank" class="btn btn-primary" onclick="analyzeBankDetector()">
+              <span>🛡️</span>
+              <span data-i18n="analyzeBankBtn">Analyze Bank Alert</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="clearBankDetector()">
+              <span>🗑️</span>
+              <span data-i18n="clearBankBtn">Clear Text</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ================================================== -->
+        <!-- TAB PANEL 5: FAKE PROFILE & IMPERSONATION DETECTOR -->
+        <!-- ================================================== -->
+        <div id="panelFakeaccount" class="detector-panel" role="tabpanel" aria-labelledby="tabBtnFakeaccount">
+          <div class="panel-header">
+            <h3 class="panel-title">👤 <span data-i18n="profileTitle">Fake Profile & Impersonation Detector</span></h3>
+            <p class="panel-desc" data-i18n="profileSub">Inspect suspicious social media profiles, usernames, and messages asking for money or sharing links.</p>
+          </div>
+
+          <!-- Limitation Disclaimer Banner -->
+          <div class="safety-banner banner-warning">
+            <span class="banner-icon">⚠️</span>
+            <div data-i18n="profileLimitationNotice">
+              LIMITATION NOTICE: This tool analyzes text & metadata heuristics locally. No external social media verification or reverse-image search API is connected. Never assume a profile is genuine solely because no warning signs were found.
+            </div>
+          </div>
+
+          <!-- Profile Details Grid -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="profileNameInput" class="form-label" data-i18n="profileNameLabel">Profile Display Name (Optional):</label>
+              <input type="text" id="profileNameInput" class="form-input" placeholder="e.g., Dr. Rajesh Kumar" aria-label="Profile Display Name">
+            </div>
+            <div class="form-group">
+              <label for="profileHandleInput" class="form-label" data-i18n="profileHandleLabel">Username / Handle (Optional):</label>
+              <input type="text" id="profileHandleInput" class="form-input" placeholder="e.g., @rajesh_kumar_loan892" aria-label="Profile Username">
+            </div>
+            <div class="form-group">
+              <label for="profilePlatformSelect" class="form-label" data-i18n="profilePlatformLabel">Social Platform:</label>
+              <select id="profilePlatformSelect" class="form-select" aria-label="Social Media Platform">
+                <option value="Facebook">Facebook</option>
+                <option value="Instagram">Instagram</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Telegram">Telegram</option>
+                <option value="X / Twitter">X / Twitter</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Other">Other Platform</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Message Text Area -->
+          <div class="form-group">
+            <label for="profileMessageInput" class="form-label" data-i18n="profileMsgLabel">Suspicious Message Received (Required):</label>
+            <textarea 
+              id="profileMessageInput" 
+              class="checker-textarea" 
+              style="min-height: 90px;"
+              placeholder="Paste message received from this profile... (e.g., 'Hey, I lost my wallet at the airport. Can you GPay me ₹5,000? I will return it tomorrow.')"
+              aria-label="Profile Message Input"
+            ></textarea>
+          </div>
+
+          <!-- Profile Photo Upload -->
+          <div class="upload-zone" id="profileDropZone">
+            <input type="file" id="profileFileInput" accept="image/png,image/jpeg,image/jpg" class="file-input-hidden" aria-label="Upload Profile Photo">
+            <div class="upload-zone-content">
+              <span class="upload-icon">👤</span>
+              <p class="upload-title" data-i18n="uploadProfilePhoto">Upload Profile Screenshot / Photo</p>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('profileFileInput').click()">
+                📁 <span>Browse Photo</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Profile Photo Preview -->
+          <div id="profilePreviewContainer" class="preview-container hidden">
+            <img id="profilePreviewImg" class="preview-img" alt="Profile Photo Preview">
+            <div class="preview-info">
+              <span id="profileFileName" class="preview-filename"></span>
+              <button type="button" class="btn-remove" onclick="removeProfileImage()">✕ <span data-i18n="removeFile">Remove Image</span></button>
+            </div>
+          </div>
+
+          <!-- Optional Profile Comparison Section -->
+          <div class="compare-toggle-box">
+            <label class="checkbox-label">
+              <input type="checkbox" id="compareToggle" onchange="toggleProfileComparison()">
+              <strong data-i18n="toggleCompareLabel">Optional: Compare with Known / Original Profile</strong>
+            </label>
+          </div>
+
+          <div id="compareSection" class="compare-container hidden">
+            <div class="form-group">
+              <label for="origHandleInput" class="form-label" data-i18n="originalProfileHandle">Original Profile Handle (e.g., @rajesh_official)</label>
+              <input type="text" id="origHandleInput" class="form-input" placeholder="e.g., @rajesh_official">
+            </div>
+            <div class="upload-zone" id="origProfileDropZone">
+              <input type="file" id="origProfileFileInput" accept="image/png,image/jpeg,image/jpg" class="file-input-hidden" aria-label="Upload Original Profile Photo">
+              <div class="upload-zone-content">
+                <span class="upload-icon">👥</span>
+                <p class="upload-title" data-i18n="originalProfilePhoto">Original / Known Profile Screenshot</p>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('origProfileFileInput').click()">
+                  📁 <span>Browse Original Photo</span>
+                </button>
+              </div>
+            </div>
+            <div id="origPreviewContainer" class="preview-container hidden">
+              <img id="origPreviewImg" class="preview-img" alt="Original Profile Preview">
+              <div class="preview-info">
+                <span id="origFileName" class="preview-filename"></span>
+                <button type="button" class="btn-remove" onclick="removeOrigProfileImage()">✕ <span data-i18n="removeFile">Remove Image</span></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Samples -->
+          <div class="sample-pills-label" data-i18n="trySampleTitle">Try Sample Scenarios:</div>
+          <div class="sample-pills">
+            <button type="button" class="pill-btn" onclick="loadProfileSample(1)">⚠️ <span data-i18n="profileSample1">Fake Facebook Friend Asking for Money</span></button>
+            <button type="button" class="pill-btn" onclick="loadProfileSample(2)">⚠️ <span data-i18n="profileSample2">Doctor Impersonation Urgent Appeal</span></button>
+            <button type="button" class="pill-btn" onclick="loadProfileSample(3)">✅ <span data-i18n="profileSample3">Normal Profile Inquiry</span></button>
+          </div>
+
+          <!-- Actions -->
+          <div class="checker-actions">
+            <button type="button" id="btnAnalyzeProfile" class="btn btn-primary" onclick="analyzeProfileDetector()">
+              <span>🛡️</span>
+              <span data-i18n="analyzeProfileBtn">Analyze Profile</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="clearProfileDetector()">
+              <span>🗑️</span>
+              <span data-i18n="clearProfileBtn">Clear</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- TAB PANEL 6: DIGITAL ARREST & FAKE POLICE CALL DETECTOR  -->
+        <!-- ======================================================== -->
+        <div id="panelFakecall" class="detector-panel" role="tabpanel" aria-labelledby="tabBtnFakecall">
+          <div class="panel-header">
+            <h3 class="panel-title">📞 <span data-i18n="arrestTitle">Digital Arrest & Fake Police Call Detector</span></h3>
+            <p class="panel-desc" data-i18n="arrestSub">Analyze calls or transcripts claiming to be Police, CBI, ED, or Customs threatening arrest or demanding video detention.</p>
+          </div>
+
+          <!-- 100% Fraud Truth Banner -->
+          <div class="safety-banner banner-danger">
+            <span class="banner-icon">🚨</span>
+            <div data-i18n="arrestTruthBanner">
+              100% FRAUD WARNING: Under Indian Law, Police, CBI, ED, and Customs NEVER conduct arrests over video calls, and NEVER ask citizens to transfer money to 'verification accounts'.
+            </div>
+          </div>
+
+          <!-- Call Transcript / Notes Input -->
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+              <label for="arrestTranscriptInput" class="form-label" data-i18n="arrestTranscriptLabel">Call Notes or Transcript (Required):</label>
+              <button type="button" id="btnDictateNotes" class="btn btn-secondary btn-sm" onclick="toggleSpeechDictation()">
+                <span id="dictateIcon">🎙️</span> <span data-i18n="dictateNotesBtn">Dictate / Speak Notes</span>
+              </button>
+            </div>
+            <textarea 
+              id="arrestTranscriptInput" 
+              class="checker-textarea" 
+              placeholder="Enter notes about the phone call... (e.g., 'Caller claimed to be CBI Officer Sharma. Said a parcel from Taiwan containing MDMA drugs has my Aadhaar. Demanded I stay on Skype video call in an isolated room and transfer ₹50,000 to an RBI verification account to avoid arrest.')"
+              aria-label="Call Transcript Input"
+            ></textarea>
+          </div>
+
+          <!-- Claimed Department and Allegation Inputs -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="arrestDeptSelect" class="form-label" data-i18n="arrestDeptLabel">Claimed Department (Optional):</label>
+              <select id="arrestDeptSelect" class="form-select" aria-label="Claimed Department">
+                <option value="Unknown">-- Select Department (Optional) --</option>
+                <option value="CBI (Central Bureau of Investigation)">CBI (Central Bureau of Investigation)</option>
+                <option value="ED (Enforcement Directorate)">ED (Enforcement Directorate)</option>
+                <option value="Narcotics Control Bureau (NCB)">Narcotics Control Bureau (NCB)</option>
+                <option value="Customs Department">Customs Department</option>
+                <option value="Mumbai Police / Delhi Police">Mumbai Police / Delhi Police</option>
+                <option value="Cyber Crime Police Cell">Cyber Crime Police Cell</option>
+                <option value="TRAI (Telecom Regulatory Authority)">TRAI (Telecom Regulatory Authority)</option>
+                <option value="Supreme Court / High Court">Supreme Court / High Court</option>
+                <option value="Other Enforcement Authority">Other Enforcement Authority</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="arrestReasonInput" class="form-label" data-i18n="arrestReasonLabel">Claimed Reason / Allegation (Optional):</label>
+              <input type="text" id="arrestReasonInput" class="form-input" placeholder="e.g., Drug parcel, money laundering, SIM misuse" aria-label="Claimed Allegation">
+            </div>
+          </div>
+
+          <!-- Optional Audio Upload -->
+          <div class="upload-zone" id="audioDropZone">
+            <input type="file" id="audioFileInput" accept="audio/mp3,audio/wav,audio/m4a,audio/ogg" class="file-input-hidden" aria-label="Upload Audio Recording">
+            <div class="upload-zone-content">
+              <span class="upload-icon">🎧</span>
+              <p class="upload-title" data-i18n="uploadAudioLabel">Optional: Call Audio Recording (.mp3, .wav, .m4a)</p>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('audioFileInput').click()">
+                📁 <span>Browse Audio File</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Audio Preview -->
+          <div id="audioPreviewContainer" class="preview-container hidden">
+            <audio id="audioPreviewPlayer" controls class="audio-player"></audio>
+            <div class="preview-info">
+              <span id="audioFileName" class="preview-filename"></span>
+              <p class="audio-note" data-i18n="audioLimitationNotice">Audio playback loaded. Note: Automatic offline transcription requires dedicated speech models. Please write or dictate key phrases in the box above for analysis.</p>
+              <button type="button" class="btn-remove" onclick="removeAudioFile()">✕ <span data-i18n="removeFile">Remove Audio</span></button>
+            </div>
+          </div>
+
+          <!-- Samples -->
+          <div class="sample-pills-label" data-i18n="trySampleTitle">Try Sample Scenarios:</div>
+          <div class="sample-pills">
+            <button type="button" class="pill-btn" onclick="loadArrestSample(1)">⚠️ <span data-i18n="arrestSample1">Digital Arrest: Drug Parcel from Taiwan (Fake CBI)</span></button>
+            <button type="button" class="pill-btn" onclick="loadArrestSample(2)">⚠️ <span data-i18n="arrestSample2">TRAI Notice: SIM Disconnection & Video Detention</span></button>
+            <button type="button" class="pill-btn" onclick="loadArrestSample(3)">✅ <span data-i18n="arrestSample3">Legitimate Courier Delivery Query</span></button>
+          </div>
+
+          <!-- Actions -->
+          <div class="checker-actions">
+            <button type="button" id="btnAnalyzeArrest" class="btn btn-primary" onclick="analyzeArrestDetector()">
+              <span>🛡️</span>
+              <span data-i18n="analyzeArrestBtn">Analyze Call Threat</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="clearArrestDetector()">
+              <span>🗑️</span>
+              <span data-i18n="clearArrestBtn">Clear</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- SHARED DYNAMIC RESULTS PANEL FOR ALL 6 TABS    -->
+        <!-- ============================================== -->
+        <div id="resultBox" class="result-box hidden" aria-live="polite">
+          <div class="result-status-row">
+            <span id="backendEngineBadge" class="engine-badge badge-online" data-i18n="onlineModeNotice">
+              🔒 Connected: Analyzed using CyberKiosk Python Backend
+            </span>
+          </div>
+
+          <div class="result-header">
+            <div>
+              <h3 data-i18n="resultTitle">Scam Risk Assessment</h3>
+              <p id="riskDesc" class="section-sub"></p>
+            </div>
+            <div id="riskBadge" class="risk-badge"></div>
+          </div>
+
+          <!-- Technical Details Card (QR, URL, Profile Compare) -->
+          <div id="techDetailsSection" class="tech-details-box hidden">
+            <div class="tech-details-title" data-i18n="technicalDetailsTitle">Technical Breakdown / Details:</div>
+            <div id="techDetailsContent" class="tech-details-content"></div>
+          </div>
+
+          <!-- Triggers Section -->
+          <div class="triggers-section">
+            <div class="triggers-title" data-i18n="reasonsFound">Suspicious Triggers Detected:</div>
+            <ul id="triggersList" class="triggers-list"></ul>
+          </div>
+
+          <!-- Advice Content -->
+          <div id="adviceContent"></div>
+
+          <!-- Disclaimer -->
+          <div id="resultDisclaimer" class="result-disclaimer"></div>
+
+          <!-- Result Footer with Voice Audio Button -->
+          <div class="result-footer">
+            <button id="speakResultBtn" class="btn btn-secondary" style="min-height: 42px; font-size: 0.95rem;">
+              <span>🔊</span>
+              <span data-i18n="readAloud">Listen</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading Spinner Container -->
+        <div id="loadingSpinner" class="loading-overlay hidden">
+          <div class="spinner"></div>
+          <p class="loading-text">Analyzing with CyberKiosk AI Engine...</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Emergency Help & Helplines -->
+    <section id="emergencyHelp" class="section-block">
+      <div class="emergency-block">
+        <div class="section-header" style="margin-bottom: 1rem;">
+          <h2 class="section-title" style="color: #FCA5A5;">
+            <span>🚨</span>
+            <span data-i18n="emergencyTitle">Emergency Cyber Crime Help & Helpline</span>
+          </h2>
+          <p class="section-sub" style="color: #FECACA;" data-i18n="emergencySub">
+            If you have lost money or entered passwords, act immediately within the first 1-2 hours ('Golden Hour').
+          </p>
+        </div>
+
+        <div class="helpline-box">
+          <div style="font-size: 1.1rem; color: #FCA5A5;" data-i18n="helplineLabel">National Cyber Crime Helpline (India)</div>
+          <div class="helpline-number">1930</div>
+          <p style="color: #CBD5E1; margin-bottom: 1.2rem;" data-i18n="helplineDesc">
+            Toll-free emergency helpline available 24x7 to block fraudulent transactions immediately.
+          </p>
+          <a href="tel:1930" class="helpline-btn-call">
+            <span>📞</span>
+            <span data-i18n="callNowBtn">Call 1930 Helpline</span>
+          </a>
+        </div>
+
+        <h3 style="color: #FFF; margin-bottom: 0.8rem;" data-i18n="emergencyStepsTitle">Immediate 4-Step Emergency Action Plan:</h3>
+        <div class="emergency-steps">
+          <div class="step-card">
+            <h4 data-i18n="step1Title">1. Call 1930 Helpline</h4>
+            <p data-i18n="step1Desc">Report the transaction immediately so cyberpolice can freeze the scammer's bank account.</p>
+          </div>
+          <div class="step-card">
+            <h4 data-i18n="step2Title">2. Contact Your Bank</h4>
+            <p data-i18n="step2Desc">Call your bank's customer care to block your ATM card, net banking, and UPI ID.</p>
+          </div>
+          <div class="step-card">
+            <h4 data-i18n="step3Title">3. File Official Complaint</h4>
+            <p data-i18n="step3Desc">Submit transaction reference number and screenshots on cybercrime.gov.in or local police station.</p>
+          </div>
+          <div class="step-card">
+            <h4 data-i18n="step4Title">4. Change All Passwords</h4>
+            <p data-i18n="step4Desc">Change your UPI PIN, banking passwords, and email credentials immediately.</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: center;">
+          <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            <span>🌐</span>
+            <span data-i18n="visitPortalBtn">Visit Official CyberCrime Portal (cybercrime.gov.in)</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- UN SDG 17 Impact Banner -->
+    <section class="section-block">
+      <div class="sdg-card">
+        <div class="sdg-wheel-icon">🌐</div>
+        <div>
+          <h3 style="color: #FBBF24; font-size: 1.25rem; margin-bottom: 0.4rem;" data-i18n="sdgTitle">
+            Alignment with UN Sustainable Development Goals (SDG 17)
+          </h3>
+          <p style="color: #CBD5E1; font-size: 0.95rem; line-height: 1.5;" data-i18n="sdgDesc">
+            CyberKiosk AI supports SDG 17 (Partnerships for the Goals) and SDG 10 (Reduced Inequalities) by providing accessible, bilingual digital safety tools to bridge the digital literacy divide for senior citizens and rural communities.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Detailed Scam Guide Modal Popup -->
+  <div id="scamModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle" class="modal-title">Scam Guide</h3>
+        <button class="btn-icon" onclick="closeScamModal()" aria-label="Close modal">✕</button>
+      </div>
+
+      <div id="modalBody" class="modal-body">
+        <!-- Filled dynamically by app.js -->
+      </div>
+
+      <div class="modal-footer">
+        <button id="modalSpeakBtn" class="btn btn-audio">
+          <span>🔊</span>
+          <span data-i18n="readAloud">Listen (Read Aloud)</span>
+        </button>
+        <button class="btn btn-secondary" onclick="closeScamModal()" data-i18n="closeButton">
+          Close Guide
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden canvas for local QR and image decoding -->
+  <canvas id="qrCanvas" class="hidden"></canvas>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p data-i18n="footerText">CyberKiosk AI • Hackathon Project for Community Empowerment • Non-profit Educational Tool</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="jsqr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
